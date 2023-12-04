@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="search-container">
+    <h2>Search Staff</h2>
+    <form action="/home" method="post">
+        <label for="staffInput">Enter Staff Name or ID:</label>
+        <input type="text" id="staffInput" name="staffInput" required>
+        <br>
+        <br>
+        <button type="submit">Search</button>
+    </form>
+</div>
+{% endblock %}
