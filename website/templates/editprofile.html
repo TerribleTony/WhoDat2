@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="registration-container">
+    <h2>Edit Profile</h2>
+    
+        <form action="{{ url_for('views.update_profile') }}" id="frmedit" method="post" enctype="multipart/form-data">
+            <label for="staffnumber">Staff Number: {{ session.get('staffnumber') }}</label>
+            <br>        
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" value="{{ edit_user.first_name }}" required>
+
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" value="{{ edit_user.last_name }}" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ edit_user.email }}" required>
+            <br>
+            <br>
+        
+            <label for="profile_picture">Profile Picture:</label>
+            <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+            <br>
+            <br>
+            <button type="submit">Update Profile</button>
+        </form>
+        <br>
+        <br>
+        <h4>Update Password</h4>
+        
+        <form action="{{ url_for('auth.update_password') }}" method="post">
+            <label for="currentPassword">Current Password:</label>
+            <input type="password" id="currentPassword" name="currentPassword" required>
+    
+            <label for="password">New Password:</label>
+            <input type="password" id="password" name="password" 
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" 
+                title="Please follow the password requirements:
+                      - At least one lowercase letter
+                      - At least one uppercase letter
+                      - At least one digit
+                      - At least one special character [@ $ ! % * ? &]
+                      - Minimum length of 8 characters" 
+                required>
+    
+            <label for="confirmPassword">Confirm New Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+            <br>
+            <br>
+            <button type="submit">Update Password</button>
+        </form>
+</div>    
+<script>
+    // Assuming you have a form with an ID 'yourFormId'
+    document.getElementById('frmedit').addEventListener('submit', function() {
+        // Add the 'glow' class to trigger the glowing effect
+        document.querySelector('.registration-container').classList.add('glow');
+
+        // Optional: Remove the 'glow' class after a delay (e.g., 2 seconds)
+        setTimeout(function() {
+            document.querySelector('.registration-container').classList.remove('glow');
+        }, 4000);
+    });
+</script>
+   
+{% endblock %}

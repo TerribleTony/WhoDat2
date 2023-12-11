@@ -8,7 +8,8 @@ DB_NAME = "database.db"
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='Static')
+    UPLOAD_FOLDER = 'Static/uploads'
     app.config['SECRET_KEY'] = 'allalongthewatchtower'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)

@@ -1,14 +1,13 @@
  body {
     font-family: Arial, sans-serif;
     background-color:#145569;
-    margin: 0;    
+    margin: 0;  
+    padding: 0;  
     justify-content: center;
     display: flex;
     align-items: center;
-    height: 100vh;
-    padding: auto;
+    height: 100vh;    
 }  
-
 
 
 .login-container {
@@ -17,9 +16,12 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 400px; /* Adjust the width as needed */
+    width: 400px; 
     text-align: center;
+    max-width: 95%;
 }
+
+
 
 
 input {
@@ -29,7 +31,8 @@ input {
     box-sizing: border-box;
 }
 
-button .login-container .registration-container{
+button.login-container 
+button.registration-container{
     width: 100%;
     padding: 10px;
     background-color: #007bff;
@@ -43,15 +46,42 @@ button:hover {
     background-color: #0056b3;
 }
 
-.registration-container {
+.results-container{
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 400px; 
+    width: 800px;
+    max-width: 95%;
     text-align: center;
-    margin-top: 50px;
+    top: 90px;
+    padding-bottom: 10px;
+    position: absolute;
 }
+
+.registration-container {
+    background-color:rgb(255, 255, 255);  
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px; 
+    text-align: center;      
+    top: 90px;
+    position: absolute;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0);
+    max-width: 95%;
+}
+
+.registration-container.glow {
+    /* Increase the shadow spread and make it more opaque when the 'glow' class is added */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+}
+
+.registration-container input:not([type="file"]) {
+    height: 30px;
+    box-sizing: border-box;
+}
+
 
 h1 {
     margin: 0;
@@ -61,9 +91,13 @@ h1 {
 h2 {
     color: #0b4b5f;
 }
+h4 {
+    color: #0b4b5f;
+}
+
 
 .search-container {
-    background-color: #fff;
+    background-color: rgb(255, 255, 255);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -71,21 +105,26 @@ h2 {
     text-align: center;
 }
 nav {
-    background-color:antiquewhite; 
+    background-color:antiquewhite;  
     color:#145569; 
     padding: 10px;
-    position: fixed;
+    position: fixed;  
     top: 0;
     left: 0;
     width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);    
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    height: 80px;  
+    display: flex;
+    align-items: center; 
+    z-index: 999;    
   }
 
   nav a {
     color: #145569; 
     text-decoration: none;
     margin: 0 15px;
-    ;
+    font-size:18px;
+    
   }
 
   nav a:hover {
@@ -93,3 +132,54 @@ nav {
   }
 
   
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    overflow-y: scroll;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.back-button {
+    float: right;
+    margin-top: -20px;
+    margin-right: -20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    background-color: #45a049;
+}
+
+.user-profile {
+    width: 60px; 
+    height: 60px; 
+    
+    border-radius: 50%;
+    margin: 0px 30px 0px 30px;
+    display:block;
+    align-items: center;
+}
+
+
+.rounded-circle{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+   
+}

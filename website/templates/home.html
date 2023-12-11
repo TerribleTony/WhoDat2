@@ -3,7 +3,7 @@
 {% block content %}
 <div class="search-container">
     <h2>Search Staff</h2>
-    <form action="/home" method="post">
+    <form action="{{ url_for('views.results') }}" method="post">
         <label for="staffInput">Enter Staff Name or ID:</label>
         <input type="text" id="staffInput" name="staffInput" required>
         <br>

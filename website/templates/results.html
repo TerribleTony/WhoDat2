@@ -1,5 +1,77 @@
 {% extends "base.html" %}
 {% block title %}results{% endblock %}
 {% block content %}
-    <h1>this is the results page</h1>
+
+<div class="results-container">
+    <h2>Results for: "{{ request.form.get('staffInput') }}"  </h2>
+    <div>
+        
+        <form action="roleinform" method="post">
+            <h4>Existing Roles</h4>
+            <table>
+                <tr>
+
+                    <th>Name</th>
+                    <th>Staff Number</th>
+                    <th>Job Role</th>
+                    <th>Webtool Name</th>
+                    <th>Webtool Owner</th>              
+                    <th>Action</th>
+                </tr>
+                {% if data1 %}
+                    {% for row in data1 %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td>{{ row[4] }}</td>
+                            <td>                              
+                                <button class="inform-btn">Inform</button>                           
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6">No results found.</td> 
+                    </tr>
+                {% endif %}
+            </table>
+        </form>
+    </div>
+    <div>
+        <h4>Outstanding Tasks</h4>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Staff Number</th>
+                <th>Task Type</th>
+                <th>Webtool Name</th>
+                <th>Task Owner</th>
+                <th>Action</th>
+            </tr>
+            {% if data2 %}
+                {% for row in data2 %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>
+                        <a href="mailto:recipient@example.com?subject=Your%20Subject&body=Subject:%20{{ row.column1 }}%0A%0ABody:%20{{ row.column2 }}">
+                            <button class="inform-btn">Inform</button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6">No results found.</td> 
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+</div>
+
 {% endblock %}

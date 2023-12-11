@@ -18,6 +18,7 @@ class Role(db.Model):
     roleId = db.Column(db.Integer)
     staffnumber = db.Column(db.String(10), db.ForeignKey('adc.staffnumber'))
     webtoolid = db.Column(db.Integer, db.ForeignKey('webtool.id'))
+    notified = db.Column(db.Boolean)
 
 
 class Roletype(db.Model):
@@ -30,6 +31,7 @@ class Task(db.Model):
     staffnumber = db.Column(db.String(10))
     webtoolid = db.Column(db.Integer, db.ForeignKey('webtool.id'))
     tasktypeid = db.Column(db.Integer, db.ForeignKey('tasktype.id'))
+    notified = db.Column(db.Boolean)
 
 
 class Tasktype(db.Model):
@@ -42,6 +44,7 @@ class Webtool(db.Model):
     toolname = db.Column(db.String(150))
     ownerstaffnumber = db.Column(
         db.String(10), db.ForeignKey('adc.staffnumber'))
+    status = db.Column(db.Boolean)
 
 
 class User(db.Model, UserMixin):
@@ -52,29 +55,10 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150))
     admin = db.Column(db.Boolean)
+    profile_picture = db.Column(db.String(120), default='default.jpg')
 
+# how to update tables manually
+# type 'sqlite3 instance/database.db' into the terminal
 
-# #Define the connection string
-# conn_str = (
-#     r'DRIVER={SQL Server};'
-#     r'SERVER=DESKTOP-DL6VN7O\SQLEXPRESS;'
-#     r'DATABASE=WhoDat;'
-#     r'Trusted_Connection=yes;'
-# )
-
-# # Connect to the SQL Server database
-# conn = pyodbc.connect(conn_str)
-
-# # Create a cursor object to interact with the database
-# cursor = conn.cursor()
-
-# # Execute a simple query
-# cursor.execute('SELECT * FROM users')
-# result = cursor.fetchall()
-
-# # Print the result
-# print(result)
-
-# # Close the cursor and connection
-# cursor.close()
-# conn.close()
+# type sql directly into the terminal for eg
+# INSERT INTO users (username, email) VALUES ('john_doe', 'john@example.com');
