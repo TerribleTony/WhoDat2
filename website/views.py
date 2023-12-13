@@ -273,8 +273,8 @@ def informtask():
                 f"Regards,Your Web App"
 
             # Create a mailto link with the specified email, subject, and body
-            mailtoLink = f"mailto:{owner.emailaddress}?subject={
-                subject}&body={body}"
+            mailtoLink = f"mailto:{owner.emailaddress}?subject= \
+                {subject}&body={body}"
 
             # Redirect to the mailto link to open the default email client
             return redirect(mailtoLink)
@@ -322,8 +322,8 @@ def informrole():
                 f"Regards,Your Web App"
 
             # Create a mailto link with the specified email, subject, and body
-            mailtoLink = f"mailto:{owner.emailaddress}?subject={
-                subject}&body={body}"
+            mailtoLink = f"mailto:{owner.emailaddress}?subject= \
+                {subject}&body={body}"
 
             # Redirect to the mailto link to open the default email client
             return redirect(mailtoLink)
