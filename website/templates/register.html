@@ -6,36 +6,71 @@
     <h1>WhoDat?</h1>
     <h2>Register</h2>
     <form action="register" method="post">
+        {{ form.csrf_token }}
         <label for="staffnumber">Staff Number:</label>
-        <input type="number" id="staffnumber" name="staffnumber" pattern="[0-9]{6}" title="Please enter your 6 digit staff number exactly" required>
-
+        <input type="text" id="staffnumber" name="staffnumber" placeholder="6 digit staff number" pattern="\d{6}" title="Please enter your 6 digit staff number exactly" required>
+        
         <label for="first_name">First Name:</label>
-        <input type="text" id="first_name" name="first_name" required>
+        <input type="text"  id="first_name" maxlength="50" pattern="^\S*$" title="Cannot contain a space" name="first_name" required>
 
         <label for="last_name">Last Name:</label>
-        <input type="text" id="last_name" name="last_name" required>
+        <input type="text" id="last_name" maxlength="50" pattern="^\S*$" title="Cannot contain a space" name="last_name" required>
 
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" 
-       pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" 
-       title="Please follow the password requirements:
-              - At least one lowercase letter
-              - At least one uppercase letter
-              - At least one digit
-              - At least one special character [@ $ ! % * ? &]
-              - Minimum length of 8 characters" 
-       required>
-
-        <label for="confirmPassword">Confirm Password:</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <div style="position: relative;">
+            <label for="password">Password:</label>
+                <!-- Icon to show requirements touch friendly -->
+            <div id="showRequirements" onclick="toggleRequirements()">?</div>
+            <input type="password" id="password" name="password" 
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" 
+            title="Please follow the password requirements:
+                - At least one lowercase letter
+                - At least one uppercase letter
+                - At least one digit
+                - At least one special character [@ $ ! % * ? &]
+                - Minimum length of 8 characters" 
+            required>
+                    <!-- Tooltip for password requirements -->
+            <div class="password-requirements" id="passwordRequirements">
+                Password requirements:
+                <ul>
+                    <li>At least one lowercase letter</li>
+                    <li>At least one uppercase letter</li>
+                    <li>At least one digit</li>
+                    <li>At least one special character [@ $ ! % * ? &]</li>
+                    <li>Minimum length of 8 characters</li>
+                </ul>
+            </div>
+        </div>
+        <label for="confirmpassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirm_password" required>
+        
         <br>
         <br>
         <button type="submit">Register</button>
         <p style="margin-top: 10px;">Already have an account? <a href="login">Login here</a>.</p>
     </form>
 </div>
+
+<script>
+    function toggleRequirements() {
+        var tooltip = document.getElementById("passwordRequirements");
+        tooltip.style.display = (tooltip.style.display === "none" || tooltip.style.display === "") ? "block" : "none";
+    }
+
+    var passwordInput = document.getElementById("password");
+
+    passwordInput.addEventListener("input", function () {
+        if (passwordInput.validity.patternMismatch) {
+            // Password does not meet the pattern
+            passwordInput.style.backgroundColor = "Red"; // Reset to default
+        } else {
+            // Password meets the pattern
+            passwordInput.style.backgroundColor = "#d4edda"; // Light green color, you can adjust this
+        }
+    });
+</script>
+
 
 {% endblock %}

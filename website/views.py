@@ -1,9 +1,11 @@
-from flask import Blueprint, app, redirect, render_template, request, session, url_for, flash, current_app
+import uuid
+from flask import Blueprint, app, redirect, render_template, render_template_string, request, session, url_for, flash, current_app
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 from website.models import Adc, Role, Webtool, Task, Roletype, Tasktype, User
 from . import db
 from werkzeug.utils import secure_filename
+from flask_mail import Message
 
 import webbrowser
 import os
@@ -142,8 +144,13 @@ def editprofile():
 @views.route('/results', methods=['GET', 'POST'])
 @login_required
 def results():
-    if request.method == 'POST':
+    if request.method in ['POST', 'GET']:
         staff_input = request.form.get('staffInput')
+        if staff_input == 'None':
+            staff_input = session.get('staff_input', '')
+        else:
+            session['staff_input'] = staff_input
+
         if staff_input and staff_input.isdigit() and len(staff_input) == 6:
             staffnumber_param = request.form.get('staffInput')
 
@@ -168,7 +175,8 @@ def results():
                 Role.staffnumber,
                 Roletype.rolename,
                 Webtool.toolname,
-                wtadc_alias.firstname + ' ' + wtadc_alias.secondname
+                wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
+                Webtool.ownerstaffnumber
             ).join(Roletype, Role.roleId == Roletype.id
                    ).join(roleadc_alias, Role.staffnumber == roleadc_alias.staffnumber
                           ).join(Webtool, Role.webtoolid == Webtool.id
@@ -188,8 +196,8 @@ def results():
                 taskadc_alias.firstname + ' ' + taskadc_alias.secondname,
                 Task.staffnumber,
                 Tasktype.tasktype,
-                Webtool.toolname,
-                wtadc_alias.firstname + ' ' + wtadc_alias.secondname
+                wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
+                Webtool.toolname
             ).join(Tasktype, Task.tasktypeid == Tasktype.id
                    ).join(taskadc_alias, Task.staffnumber == taskadc_alias.staffnumber
                           ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
@@ -206,7 +214,8 @@ def results():
                 Role.staffnumber,
                 Roletype.rolename,
                 Webtool.toolname,
-                wtadc_alias.firstname + ' ' + wtadc_alias.secondname
+                wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
+                Webtool.ownerstaffnumber
             ).join(Roletype, Role.roleId == Roletype.id
                    ).join(roleadc_alias, Role.staffnumber == roleadc_alias.staffnumber
                           ).join(Webtool, Role.webtoolid == Webtool.id
@@ -223,7 +232,103 @@ def results():
     else:
         return render_template('results.html')
 
-# open email to demo what email would be sent.
+
+@views.route('/informtask', methods=['POST'])
+def informtask():
+    if request.method == 'POST':
+        staffnumber = request.form['staffnumber']
+        taskownerID = request.form['taskownerID']
+
+        # Fetch user and owner details from the database
+        user = Adc.query.filter_by(staffnumber=staffnumber).first()
+        owner = Adc.query.filter_by(staffnumber=taskownerID).first()
+        webtool = Webtool.query.filter_by(
+            ownerstaffnumber=taskownerID).first()
+        if user:
+            print(user.staffnumber)
+        else:
+            print("User not found.")
+
+        if owner:
+            print(owner.staffnumber)
+            print(owner.firstname)
+        else:
+            print("Owner not found.")
+
+        if webtool:
+            print(webtool.ownerstaffnumber)
+            print(webtool.toolname)
+        else:
+            print("Webtool not found.")
+        # Check if user, owner, and webtool exist
+        if user and owner and webtool:
+            # Construct the subject and body for the email
+            subject = "Subject of the Email"
+            body = f"Dear {owner.firstname} {owner.secondname}," \
+                f"This is the content of the email." \
+                f"Webtool Information:" \
+                f"Webtool Name: {webtool.toolname}" \
+                f"Owner Name: {owner.firstname} {owner.secondname}" \
+                f"Owner Email: {owner.emailaddress}" \
+                f"Regards,Your Web App"
+
+            # Create a mailto link with the specified email, subject, and body
+            mailtoLink = f"mailto:{owner.emailaddress}?subject={
+                subject}&body={body}"
+
+            # Redirect to the mailto link to open the default email client
+            return redirect(mailtoLink)
+
+    return redirect(url_for('views.results'))
+
+
+@views.route('/informrole', methods=['POST'])
+def informrole():
+    if request.method == 'POST':
+        staffnumber = request.form['staffnumber']
+        webtoolOwnerID = request.form['webtoolOwnerID']
+
+        # Fetch user and owner details from the database
+        user = Adc.query.filter_by(staffnumber=staffnumber).first()
+        owner = Adc.query.filter_by(staffnumber=webtoolOwnerID).first()
+        webtool = Webtool.query.filter_by(
+            ownerstaffnumber=webtoolOwnerID).first()
+        if user:
+            print(user.staffnumber)
+        else:
+            print("User not found.")
+
+        if owner:
+            print(owner.staffnumber)
+            print(owner.firstname)
+        else:
+            print("Owner not found.")
+
+        if webtool:
+            print(webtool.ownerstaffnumber)
+            print(webtool.toolname)
+        else:
+            print("Webtool not found.")
+        # Check if user, owner, and webtool exist
+        if user and owner and webtool:
+            # Construct the subject and body for the email
+            subject = "Subject of the Email"
+            body = f"Dear {owner.firstname} {owner.secondname},<br>" \
+                f"This is the content of the email." \
+                f"Webtool Information:" \
+                f"Webtool Name: {webtool.toolname}" \
+                f"Owner Name: {owner.firstname} {owner.secondname}" \
+                f"Owner Email: {owner.emailaddress}" \
+                f"Regards,Your Web App"
+
+            # Create a mailto link with the specified email, subject, and body
+            mailtoLink = f"mailto:{owner.emailaddress}?subject={
+                subject}&body={body}"
+
+            # Redirect to the mailto link to open the default email client
+            return redirect(mailtoLink)
+
+    return redirect(url_for('views.results'))
 
 
 def open_email_template(subject, body):
@@ -233,6 +338,15 @@ def open_email_template(subject, body):
 
 def save_profile_picture(file):
     if file:
+        # Generate a UUID for the profile picture to avoid conflicts in the database
+        unique_filename = str(uuid.uuid4())
+
+        # Get the file extension from the original filename
+        _, file_extension = os.path.splitext(file.filename)
+
+        # Construct the new filename with the UUID and original extension
+        new_filename = unique_filename + file_extension
+
         # Get the current app's root path
         app_root = current_app.root_path
 
@@ -243,16 +357,14 @@ def save_profile_picture(file):
         os.makedirs(upload_folder, exist_ok=True)
 
         # Use secure_filename to generate a secure version of the filename
-        filename = secure_filename(file.filename)
+        secure_filename = secure_filename(file.filename)
 
-        # Save the file to the designated folder
-        file.save(os.path.join(upload_folder, filename))
+        # Save the file to the designated folder with the new filename
+        file.save(os.path.join(upload_folder, new_filename))
 
-        # Return the filename or the full path if needed
-        return filename
-
-    # Return None if no file is provided
-    return None
+        return new_filename
+    else:
+        return None
 
 
 @views.route('/help')

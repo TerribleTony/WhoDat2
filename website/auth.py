@@ -1,4 +1,8 @@
 # import crypt
+from password_strength import PasswordPolicy
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, IntegerField, SubmitField, ValidationError
+from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange, Regexp
 from . import db
 from flask_login import login_required, current_user
 from flask import Blueprint, redirect, render_template, request, session, url_for, flash
@@ -44,14 +48,17 @@ def login():
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
+    form = RegistrationForm()
+    print(form.errors)
+    if form.validate_on_submit():
+
         # pass form inputs to variables
-        password1 = request.form.get('password')
-        password2 = request.form.get('confirmPassword')
-        staffnumber = request.form.get('staffnumber')
-        email = request.form.get('email')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
+        password1 = form.password.data
+        password2 = form.confirm_password.data
+        staffnumber = form.staffnumber.data
+        email = form.email.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
         hash = ''
 
         # confirm the email doesn't already exist
@@ -67,7 +74,8 @@ def register():
         # save a new user to the db
         else:
             # hash the password
-            hash = generate_password_hash(password1, method='pbkdf2:sha256')
+            hash = generate_password_hash(
+                password1, method='pbkdf2:sha256')
             # create the user object
             new_user = User(password=hash, staffnumber=staffnumber,
                             email=email, first_name=first_name, last_name=last_name, admin=0)
@@ -81,7 +89,54 @@ def register():
             session['name'] = first_name + ' ' + last_name
             return redirect(url_for('views.home'))
         # Return the rendered template for POST requests
-    return render_template("register.html")
+    print(form.errors)
+    return render_template("register.html", form=form)
+
+
+class RegistrationForm(FlaskForm):
+
+    staffnumber = StringField('Staff Number', validators=[
+        Length(min=6, max=6, message='Staff number must contain exactly 6 digits.'),
+        Regexp('^\d*$', message='Staff number must contain only digits.')
+    ])
+
+    first_name = StringField('First Name', validators=[DataRequired()])
+
+    last_name = StringField('Last Name', validators=[DataRequired()])
+
+    email = StringField('Email', validators=[DataRequired(), Email()])
+
+    password = PasswordField('Password', validators=[
+        DataRequired(),
+        Regexp(
+            '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', message='Password must meet the specified requirements.')
+
+    ])
+
+    confirm_password = PasswordField('Confirm Password', validators=[
+        DataRequired(),
+        EqualTo('password', message='Passwords must match.')
+    ])
+
+    def validate_password(self, password):
+        policy = PasswordPolicy.from_names(
+            length=8,
+            uppercase=1,
+            numbers=1,
+            special=1,
+            nonletters=1,
+        )
+
+        errors = [str(err) for err in policy.test(password.data)]
+        if errors:
+            raise ValidationError(" ".join(errors))
+
+        # Check if the password is in the blacklist
+        common_passwords = ['password', '123456', 'qwerty', 'letmein', 'admin']
+        if password.data.lower() in common_passwords:
+            raise ValidationError('Please choose a more secure password.')
+
+    submit = SubmitField('Register')
 
 
 @auth.route('/update_password', methods=['POST'])
