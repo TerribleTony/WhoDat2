@@ -357,7 +357,7 @@ def save_profile_picture(file):
         os.makedirs(upload_folder, exist_ok=True)
 
         # Use secure_filename to generate a secure version of the filename
-        secure_filename = secure_filename(file.filename)
+        secure_filename_result = secure_filename(file.filename)
 
         # Save the file to the designated folder with the new filename
         file.save(os.path.join(upload_folder, new_filename))
