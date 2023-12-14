@@ -173,7 +173,7 @@ def results():
                           ).join(Webtool, Role.webtoolid == Webtool.id
                                  ).join(taskwt_alias, Role.webtoolid == Webtool.id
                                         ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
-                                               ).filter(Role.staffnumber == staffnumber_param).all()
+                                               ).filter(Role.staffnumber == staffnumber_param).distinct().all()
 
             data2 = db.session.query(
                 taskadc_alias.firstname + ' ' + taskadc_alias.secondname,
@@ -188,7 +188,7 @@ def results():
                    ).join(Tasktype, Task.tasktypeid == Tasktype.id
                           ).join(Webtool, Task.webtoolid == Webtool.id
                                  ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
-                                        ).filter(Task.staffnumber == staffnumber_param).all()
+                                        ).filter(Task.staffnumber == staffnumber_param).distinct().all()
 
             if not results:
                 return render_template('no_results_template.html')
@@ -216,7 +216,7 @@ def results():
                                                 f"%{staffname_param}%"),
                                             roleadc_alias.secondname.like(
                                                 f"%{staffname_param}%")
-                                        )).all()
+                                        )).distinct().all()
 
         data2 = db.session.query(
             taskadc_alias.firstname + ' ' + taskadc_alias.secondname,
@@ -235,7 +235,7 @@ def results():
                                              f"%{staffname_param}%"),
                                         taskadc_alias.secondname.like(
                                             f"%{staffname_param}%")
-                                    )).all()
+                                    )).distinct().all()
 
         if not results:
             return render_template('no_results_template.html')
