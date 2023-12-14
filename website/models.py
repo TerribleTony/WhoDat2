@@ -30,6 +30,7 @@ class Task(db.Model):
     webtoolid = db.Column(db.Integer, db.ForeignKey('webtool.id'))
     tasktypeid = db.Column(db.Integer, db.ForeignKey('tasktype.id'))
     notified = db.Column(db.Boolean)
+    webtool = db.relationship('Webtool', back_populates='tasks')
 
 
 class Tasktype(db.Model):
@@ -43,6 +44,7 @@ class Webtool(db.Model):
     ownerstaffnumber = db.Column(
         db.String(10), db.ForeignKey('adc.staffnumber'))
     status = db.Column(db.Boolean)
+    tasks = db.relationship('Task', back_populates='webtool')
 
 
 class User(db.Model, UserMixin):

@@ -1,6 +1,6 @@
 import uuid
-from flask import Blueprint, app, redirect, render_template, render_template_string, request, session, url_for, flash, current_app
-from sqlalchemy import or_
+from flask import jsonify, Blueprint, app, redirect, render_template, request, session, url_for, flash, current_app
+from sqlalchemy import or_, create_engine, text
 from sqlalchemy.orm import aliased
 from website.models import Adc, Role, Webtool, Task, Roletype, Tasktype, User
 from . import db
@@ -157,18 +157,7 @@ def results():
             wtadc_alias = aliased(Adc, name='wtadc_alias')
             taskadc_alias = aliased(Adc, name='taskadc_alias')
             roleadc_alias = aliased(Adc, name='roleadc_alias')
-
-            data2 = db.session.query(
-                taskadc_alias.firstname + ' ' + taskadc_alias.secondname,
-                Task.staffnumber,
-                Tasktype.tasktype,
-                Webtool.toolname,
-                wtadc_alias.firstname + ' ' + wtadc_alias.secondname
-            ).join(Tasktype, Task.tasktypeid == Tasktype.id
-                   ).join(taskadc_alias, Task.staffnumber == taskadc_alias.staffnumber
-                          ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
-                                 ).join(Webtool, Task.webtoolid == Webtool.id
-                                        ).filter(Task.staffnumber == staffnumber_param).all()
+            taskwt_alias = aliased(Webtool, name='taskwt_alias')
 
             data1 = db.session.query(
                 roleadc_alias.firstname + ' ' + roleadc_alias.secondname,
@@ -176,38 +165,39 @@ def results():
                 Roletype.rolename,
                 Webtool.toolname,
                 wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
-                Webtool.ownerstaffnumber
+                Role.id,
+                wtadc_alias.emailaddress,
+
             ).join(Roletype, Role.roleId == Roletype.id
                    ).join(roleadc_alias, Role.staffnumber == roleadc_alias.staffnumber
                           ).join(Webtool, Role.webtoolid == Webtool.id
+                                 ).join(taskwt_alias, Role.webtoolid == Webtool.id
+                                        ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
+                                               ).filter(Role.staffnumber == staffnumber_param).all()
+
+            data2 = db.session.query(
+                taskadc_alias.firstname + ' ' + taskadc_alias.secondname,
+                Task.staffnumber,
+                Tasktype.tasktype,
+                Webtool.toolname,
+                wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
+                Task.id,
+                wtadc_alias.emailaddress,
+
+            ).join(taskadc_alias, Task.staffnumber == taskadc_alias.staffnumber
+                   ).join(Tasktype, Task.tasktypeid == Tasktype.id
+                          ).join(Webtool, Task.webtoolid == Webtool.id
                                  ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
-                                        ).filter(Role.staffnumber == staffnumber_param).all()
+                                        ).filter(Task.staffnumber == staffnumber_param).all()
+
             if not results:
                 return render_template('no_results_template.html')
             return render_template('results.html', data2=data2, data1=data1)
         else:
             staffname_param = request.form.get('staffInput')
-
             wtadc_alias = aliased(Adc, name='wtadc_alias')
             taskadc_alias = aliased(Adc, name='taskadc_alias')
             roleadc_alias = aliased(Adc, name='roleadc_alias')
-
-            data2 = db.session.query(
-                taskadc_alias.firstname + ' ' + taskadc_alias.secondname,
-                Task.staffnumber,
-                Tasktype.tasktype,
-                wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
-                Webtool.toolname
-            ).join(Tasktype, Task.tasktypeid == Tasktype.id
-                   ).join(taskadc_alias, Task.staffnumber == taskadc_alias.staffnumber
-                          ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
-                                 ).join(Webtool, Task.webtoolid == Webtool.id
-                                        ).filter(or_(
-                                            taskadc_alias.firstname.like(
-                                                f"%{staffname_param}%"),
-                                            taskadc_alias.secondname.like(
-                                                f"%{staffname_param}%")
-                                        )).all()
 
             data1 = db.session.query(
                 roleadc_alias.firstname + ' ' + roleadc_alias.secondname,
@@ -215,7 +205,8 @@ def results():
                 Roletype.rolename,
                 Webtool.toolname,
                 wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
-                Webtool.ownerstaffnumber
+                Role.id,
+                wtadc_alias.emailaddress,
             ).join(Roletype, Role.roleId == Roletype.id
                    ).join(roleadc_alias, Role.staffnumber == roleadc_alias.staffnumber
                           ).join(Webtool, Role.webtoolid == Webtool.id
@@ -226,109 +217,29 @@ def results():
                                             roleadc_alias.secondname.like(
                                                 f"%{staffname_param}%")
                                         )).all()
-            if not results:
-                return render_template('no_results_template.html')
-            return render_template('results.html', data2=data2, data1=data1)
-    else:
-        return render_template('results.html')
 
+        data2 = db.session.query(
+            taskadc_alias.firstname + ' ' + taskadc_alias.secondname,
+            Task.staffnumber,
+            Tasktype.tasktype,
+            Webtool.toolname,
+            wtadc_alias.firstname + ' ' + wtadc_alias.secondname,
+            Task.id,
+            wtadc_alias.emailaddress,
+        ).join(taskadc_alias, Task.staffnumber == taskadc_alias.staffnumber
+               ).join(Tasktype, Task.tasktypeid == Tasktype.id
+                      ).join(Webtool, Task.webtoolid == Webtool.id
+                             ).join(wtadc_alias, Webtool.ownerstaffnumber == wtadc_alias.staffnumber
+                                    ).filter(or_(
+                                        taskadc_alias.firstname.like(
+                                             f"%{staffname_param}%"),
+                                        taskadc_alias.secondname.like(
+                                            f"%{staffname_param}%")
+                                    )).all()
 
-@views.route('/informtask', methods=['POST'])
-def informtask():
-    if request.method == 'POST':
-        staffnumber = request.form['staffnumber']
-        taskownerID = request.form['taskownerID']
-
-        # Fetch user and owner details from the database
-        user = Adc.query.filter_by(staffnumber=staffnumber).first()
-        owner = Adc.query.filter_by(staffnumber=taskownerID).first()
-        webtool = Webtool.query.filter_by(
-            ownerstaffnumber=taskownerID).first()
-        if user:
-            print(user.staffnumber)
-        else:
-            print("User not found.")
-
-        if owner:
-            print(owner.staffnumber)
-            print(owner.firstname)
-        else:
-            print("Owner not found.")
-
-        if webtool:
-            print(webtool.ownerstaffnumber)
-            print(webtool.toolname)
-        else:
-            print("Webtool not found.")
-        # Check if user, owner, and webtool exist
-        if user and owner and webtool:
-            # Construct the subject and body for the email
-            subject = "Subject of the Email"
-            body = f"Dear {owner.firstname} {owner.secondname}," \
-                f"This is the content of the email." \
-                f"Webtool Information:" \
-                f"Webtool Name: {webtool.toolname}" \
-                f"Owner Name: {owner.firstname} {owner.secondname}" \
-                f"Owner Email: {owner.emailaddress}" \
-                f"Regards,Your Web App"
-
-            # Create a mailto link with the specified email, subject, and body
-            mailtoLink = f"mailto:{owner.emailaddress}?subject= \
-                {subject}&body={body}"
-
-            # Redirect to the mailto link to open the default email client
-            return redirect(mailtoLink)
-
-    return redirect(url_for('views.results'))
-
-
-@views.route('/informrole', methods=['POST'])
-def informrole():
-    if request.method == 'POST':
-        staffnumber = request.form['staffnumber']
-        webtoolOwnerID = request.form['webtoolOwnerID']
-
-        # Fetch user and owner details from the database
-        user = Adc.query.filter_by(staffnumber=staffnumber).first()
-        owner = Adc.query.filter_by(staffnumber=webtoolOwnerID).first()
-        webtool = Webtool.query.filter_by(
-            ownerstaffnumber=webtoolOwnerID).first()
-        if user:
-            print(user.staffnumber)
-        else:
-            print("User not found.")
-
-        if owner:
-            print(owner.staffnumber)
-            print(owner.firstname)
-        else:
-            print("Owner not found.")
-
-        if webtool:
-            print(webtool.ownerstaffnumber)
-            print(webtool.toolname)
-        else:
-            print("Webtool not found.")
-        # Check if user, owner, and webtool exist
-        if user and owner and webtool:
-            # Construct the subject and body for the email
-            subject = "Subject of the Email"
-            body = f"Dear {owner.firstname} {owner.secondname},<br>" \
-                f"This is the content of the email." \
-                f"Webtool Information:" \
-                f"Webtool Name: {webtool.toolname}" \
-                f"Owner Name: {owner.firstname} {owner.secondname}" \
-                f"Owner Email: {owner.emailaddress}" \
-                f"Regards,Your Web App"
-
-            # Create a mailto link with the specified email, subject, and body
-            mailtoLink = f"mailto:{owner.emailaddress}?subject= \
-                {subject}&body={body}"
-
-            # Redirect to the mailto link to open the default email client
-            return redirect(mailtoLink)
-
-    return redirect(url_for('views.results'))
+        if not results:
+            return render_template('no_results_template.html')
+        return render_template('results.html', data2=data2, data1=data1)
 
 
 def open_email_template(subject, body):

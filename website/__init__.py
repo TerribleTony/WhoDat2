@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
-from flask_login import login_manager
+
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -12,6 +12,7 @@ def create_app():
     UPLOAD_FOLDER = 'Static/uploads'
     app.config['SECRET_KEY'] = 'allalongthewatchtower'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+
     db.init_app(app)
 
     from .views import views

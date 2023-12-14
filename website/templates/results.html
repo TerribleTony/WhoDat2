@@ -4,74 +4,129 @@
 
 <div class="results-container">
     <h2>Results for: "{{ request.form.get('staffInput') }}"  </h2>
-    <div>
+    <div>       
         
-        <form action="informrole" method="post">
-            <h4>Existing Roles</h4>
-            <table>
-                <tr>
-
-                    <th>Name</th>
-                    <th>Staff Number</th>
-                    <th>Job Role</th>
-                    <th>Webtool Name</th>
-                    <th>Webtool Owner</th>              
-                    <th>Action</th>
-                </tr>
-                {% if data1 %}
-                    {% for row in data1 %}
-                        <tr>
-                            <td>{{ row[0] }} </td>
-                            <td>{{ row[1] }} <input type="hidden" name="staffnumber" value="{{ row[1] }}"></td>
-                            <td>{{ row[2] }} </td>
-                            <td>{{ row[3] }} </td>
-                            <td>{{ row[4] }} <input type="hidden" name="webtoolOwnerID" value="{{ row[5] }}"></td>
-                            <td>                              
-                                <button class="inform-btn">Inform</button>                           
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
+        <h4>Existing Roles</h4>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Staff Number</th>
+                <th>Job Role</th>
+                <th>Webtool Name</th>
+                <th>Webtool Owner</th>                                              
+                <th>Action</th>
+            </tr>
+            {% if data1 %}
+                {% for row in data1 %}
                     <tr>
-                        <td colspan="6">No results found.</td> 
-                    </tr>
-                {% endif %}
-            </table>
-        </form>
-    </div>
-    <div>
-        <form action="informtask" method="post">
-            <h4>Outstanding Tasks</h4>
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Staff Number</th>
-                    <th>Task Type</th>
-                    <th>Webtool Name</th>
-                    <th>Task Owner</th>
-                    <th>Action</th>
-                </tr>
-                {% if data2 %}
-                    {% for row in data2 %}
-                    <tr>
-                        <td>{{ row[0] }}</td>
-                        <td>{{ row[1] }} <input type="hidden" name="staffnumber" value="{{ row[1] }}"></td>
-                        <td>{{ row[2] }}</td>
-                        <td>{{ row[3] }}</td>
-                        <td>{{ row[4] }} <input type="hidden" name="taskownerID" value="{{ row[5] }}"></td>
-                        <td>                       
-                            <button class="inform-btn">Inform</button>                    
+                        <td>{{ row[0] }} </td>
+                        <td>{{ row[1] }} </td>
+                        <td>{{ row[2] }} </td>
+                        <td>{{ row[3] }} </td>
+                        <td>{{ row[4] }}
+                            <input type="hidden" class="Name" value="{{ row[0] }}">
+                            <input type="hidden" class="StaffNumber" value="{{ row[1] }}">         
+                            <input type="hidden" class="JobRole" value="{{ row[2] }}">         
+                            <input type="hidden" class="WebtoolName" value="{{ row[3] }}">         
+                            <input type="hidden" class="TaskOwner" value="{{ row[4] }}">         
+                            <input type="hidden" class="RoleId" value="{{ row[5] }}">         
+                            <input type="hidden" class="Email" value="{{ row[6] }}">   
+                        </td>                                                   
+                        <td>                                                 
+                            <button type="submit" onclick="sendRoleData(this)">Inform</button>                             
                         </td>
                     </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="6">No results found.</td> 
-                    </tr>
-                {% endif %}
-            </table>
-        </form>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6">No results found.</td> 
+                </tr>
+            {% endif %}
+        </table>       
+    </div>
+    <div>        
+        <h4>Outstanding Tasks</h4>
+        <table>
+            <tr>
+                
+                <th>Name</th>
+                <th>Staff Number</th>
+                <th>Task Type</th>
+                <th>Webtool Name</th>
+                <th>Task Owner</th>                   
+                <th>Action</th>
+            </tr>
+            {% if data2 %}
+                {% for row in data2 %}
+                <tr>                       
+                    <td>{{ row[0] }} </td>
+                    <td>{{ row[1] }} </td>
+                    <td>{{ row[2] }} </td>
+                    <td>{{ row[3] }} </td>
+                    <td>{{ row[4] }} 
+                        <input type="hidden" class="Name" value="{{ row[0] }}">
+                        <input type="hidden" class="StaffNumber" value="{{ row[1] }}">         
+                        <input type="hidden" class="TaskType" value="{{ row[2] }}">         
+                        <input type="hidden" class="WebtoolName" value="{{ row[3] }}">         
+                        <input type="hidden" class="TaskOwner" value="{{ row[4] }}">         
+                        <input type="hidden" class="TaskId" value="{{ row[5] }}">         
+                        <input type="hidden" class="Email" value="{{ row[6] }}">                                     
+                    </td>
+                    
+                    <td>                                                
+                        <button type="submit" onclick="sendTaskData(this)">Inform</button>   
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6">No results found.</td> 
+                </tr>
+            {% endif %}
+        </table>
+      
     </div>
 </div>
+<script>
+    function sendTaskData(buttonElement) {
+        // Get the parent row of the button
+        var row = buttonElement.parentNode.parentNode;
+      
+        var Name = row.querySelector('.Name').value;
+        var StaffNumber = row.querySelector('.StaffNumber').value;
+        var TaskType = row.querySelector('.TaskType').value;
+        var WebtoolName = row.querySelector('.WebtoolName').value;
+        var TaskOwner = row.querySelector('.TaskOwner').value;
+        var Email = row.querySelector('.Email').value;
+        var TaskId = row.querySelector('.TaskId').value;
+              
+    
+        // Construct the email body
+        var emailBody = 'Dear '+TaskOwner+',\n\nPlease be advised that '+Name+' is changing roles. \nYou will need to reassign the '+TaskType+' for Task-'+ TaskId+' for the '+WebtoolName+'\n\nKind regards, \n\nThe Whodat team.'
+        
+        // Open default mail client with populated data
+        window.location.href = 'mailto:'+Email+'?subject=Task Information&body=' + encodeURIComponent(emailBody);
+    }
 
+
+    function sendRoleData(buttonElement) {
+        // Get the parent row of the button
+        var row = buttonElement.parentNode.parentNode;
+      
+        var Name = row.querySelector('.Name').value;
+        var StaffNumber = row.querySelector('.StaffNumber').value;
+        var JobRole = row.querySelector('.JobRole').value;
+        var WebtoolName = row.querySelector('.WebtoolName').value;
+        var TaskOwner = row.querySelector('.TaskOwner').value;
+        var Email = row.querySelector('.Email').value;
+        var RoleId = row.querySelector('.RoleId').value;
+          
+        // Construct the email body
+        var emailBody = 'Dear '+TaskOwner+',\n\nPlease be advised that '+Name+' is changing roles. \nYou will need to reassign the '+JobRole+'-'+RoleId+' for the '+WebtoolName+'\n\nKind regards, \n\n the Whodat team.'
+        
+    
+        // Open default mail client with populated data
+        window.location.href = 'mailto:'+Email+'?subject=Task Information&body=' + encodeURIComponent(emailBody);
+    }
+</script>
 {% endblock %}
