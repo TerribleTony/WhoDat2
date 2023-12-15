@@ -48,8 +48,29 @@
 
         
     </div>
-</div>
-<div class="results-container">
-   
+
+
+    <br>
+    <h4>Remove User</h4>
+    <form method="post" action="{{ url_for('views.remove_user') }}">
+        <table>
+            <tr>
+                <th>Select User</th>
+                <th>Action</th>
+            </tr>
+            <tr>
+                <td>
+                    <select id="removePeople" name="removePeople">
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button type="submit" class="inform-btn">Remove</button>
+                </td>
+            </tr>
+        </table>
+    </form>
 </div>
 {% endblock %}

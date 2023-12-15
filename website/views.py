@@ -286,3 +286,19 @@ def help():
 @views.route('/test')
 def test():
     return render_template("test.html")
+
+
+@views.route('/remove_user', methods=['POST'])
+def remove_user():
+    user_id = request.form.get('removePeople')
+    user = User.query.get(user_id)
+
+    if user:
+        # Remove the user from the database
+        db.session.delete(user)
+        db.session.commit()
+        flash('User removed successfully', category='success')
+    else:
+        flash('User not found', category='error')
+
+    return redirect(url_for('views.admin'))
